@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/calculator_provider.dart';
 import '../utils/theme.dart';
+import '../utils/ad_manager.dart';
 import '../widgets/ad_widgets.dart';
 
 class BaseCalcPage extends StatelessWidget {
@@ -235,6 +236,7 @@ class _PercentagePageState extends State<PercentagePage> {
         setState(
           () => _res = provider.calcPercentageOf(v, p).toStringAsFixed(2),
         );
+        AdManager.showInterstitialIfNeeded(provider);
       },
       onReset: () => setState(() {
         _c1.clear();
@@ -283,6 +285,7 @@ class _ChangePageState extends State<ChangePage> {
         setState(
           () => _res = provider.calcChangePercentage(o, n).toStringAsFixed(2),
         );
+        AdManager.showInterstitialIfNeeded(provider);
       },
       onReset: () => setState(() {
         _c1.clear();
@@ -324,6 +327,7 @@ class _DiscountPageState extends State<DiscountPage> {
           _res = provider.calcDiscount(p, d).toStringAsFixed(2);
           _savings = provider.calcSavings(p, d).toStringAsFixed(2);
         });
+        AdManager.showInterstitialIfNeeded(provider);
       },
       onReset: () => setState(() {
         _c1.clear();
@@ -378,6 +382,7 @@ class _ReversePageState extends State<ReversePage> {
               .calcOriginalPrice(v, p, _wasIncrease)
               .toStringAsFixed(2),
         );
+        AdManager.showInterstitialIfNeeded(provider);
       },
       onReset: () => setState(() {
         _c1.clear();
@@ -423,6 +428,7 @@ class _TipPageState extends State<TipPage> {
           _res = provider.calcPerPerson(t, tp, p).toStringAsFixed(2);
           _total = provider.calcTotalWithTip(t, tp).toStringAsFixed(2);
         });
+        AdManager.showInterstitialIfNeeded(provider);
       },
       onReset: () => setState(() {
         _c1.clear();

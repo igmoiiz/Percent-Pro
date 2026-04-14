@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/calculator_provider.dart';
+import '../utils/ad_manager.dart';
 import 'calculation_pages.dart';
+import 'settings_page.dart';
 import '../widgets/ad_widgets.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    AdManager.loadInterstitial();
+    AdManager.loadRewarded();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +32,11 @@ class HomePage extends StatelessWidget {
         title: const Text('PercentPro'),
         actions: [
           IconButton(
-            icon: Icon(
-              provider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+            icon: const Icon(Icons.settings),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsPage()),
             ),
-            onPressed: provider.toggleTheme,
           ),
         ],
       ),

@@ -16,13 +16,23 @@ PercentPro offers five specialized calculation modules, each optimized for speci
 
 ---
 
+## 💰 Monetization & Premium Experience
+
+PercentPro uses a balanced AdMob implementation to ensure a sustainable business model without compromising user experience:
+
+-   **Banner Ads**: Always-visible at the bottom of the screen (Standard AdMob).
+-   **Interstitial Ads**: Triggered automatically after every **3 calculations** to maintain a healthy engagement-to-add ratio.
+-   **Rewarded Ads (Premium Perk)**: Users can choose to "Remove Ads for 10 Minutes" by watching a short video. This provides a completely ad-free experience (hiding all banners and stopping interstitials) for a temporary session.
+
+---
+
 ## 🛠 Tech Stack & Architecture
 
 -   **Framework**: Flutter (Multi-platform)
--   **State Management**: `Provider` for reactive UI updates and clean separation of logic.
--   **Monetization**: `Google Mobile Ads` (AdMob) integrated with smart layout safety.
+-   **State Management**: `Provider` for reactive UI updates, calculation tracking, and ad-removal sessions.
+-   **Monetization**: `Google Mobile Ads` (AdMob) with centralized management.
 -   **Design System**: Custom Premium Theme with `Google Fonts (Outfit)`.
--   **Layout**: Fully responsive `MediaQuery` based design for Mobile and Tablets.
+-   **Navigation**: Modal-based settings and feature-driven page routing.
 
 ### System Architecture Diagram
 
@@ -33,8 +43,10 @@ graph TD
     B --> D[AppTheme]
     
     C --> E[HomePage]
-    E --> F{User Selection}
+    E --> S[SettingsPage]
+    S --> AM[AdManager]
     
+    E --> F{User Selection}
     F --> G[Percentage Page]
     F --> H[Profit & Loss Page]
     F --> I[Discount Page]
@@ -42,30 +54,32 @@ graph TD
     F --> K[Bill & Tip Page]
     
     G & H & I & J & K --> L[BaseCalcPage Template]
-    L --> M[BannerAdWidget]
-    L --> N[Calculation Logic]
+    L --> BW[BannerAdWidget]
+    BW -- Checks State --> C
+    L --> AM
+    AM -- Increments Count --> C
+    AM -- Shows Ads --> UI[User Interface]
 ```
 
-### Application Flow
+### Ad Removal Logic Flow
 
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant H as HomePage
-    participant C as CalcPage
+    participant S as SettingsPage
+    participant AM as AdManager
     participant P as Provider
+    participant BW as BannerWidget
 
-    U->>H: Opens App
-    H->>U: Displays Feature Cards
-    U->>H: Selects "Discount"
-    H->>C: Navigates to DiscountPage
-    U->>C: Enters Price & Discount
-    U->>C: Taps "Calculate"
-    C->>P: Requests Calculation
-    P-->>C: Returns Result
-    C->>U: Displays Result prominent at Top
-    U->>C: Taps "Copy"
-    C->>U: Result saved to Clipboard
+    U->>S: Taps "Remove Ads"
+    S->>AM: showRewarded()
+    AM->>U: Plays Video
+    U-->>AM: Completes Video
+    AM->>P: removeAdsFor(10)
+    P->>P: Sets adsRemovedUntil timer
+    P->>BW: notifyListeners()
+    BW->>BW: Hide Widget (SizedBox.shrink)
+    Note over BW: App is Ad-Free for 10m
 ```
 
 ---
@@ -74,16 +88,18 @@ sequenceDiagram
 
 ```text
 lib/
-├── main.dart                 # App entry point & Provider setup
+├── main.dart                 # App entry point, Ad SDK init & Provider setup
 ├── providers/
-│   └── calculator_provider.dart # Business logic & Calculation engine
+│   └── calculator_provider.dart # Business logic, Calc tracking & Timer state
 ├── screens/
-│   ├── home_page.dart         # Main dashboard with feature cards
-│   └── calculation_pages.dart # Individual feature screens & Base template
+│   ├── home_page.dart         # Dashboard with responsive feature cards
+│   ├── calculation_pages.dart # Individual feature screens & Base template
+│   └── settings_page.dart      # Theme toggle & Rewarded ad removal
 ├── utils/
+│   ├── ad_manager.dart        # Central service for Interstitial/Rewarded ads
 │   └── theme.dart             # UI Tokens, Colors, and Global Styles
 └── widgets/
-    └── ad_widgets.dart        # Reusable AdMob Banner components
+    └── ad_widgets.dart        # Visibility-aware AdMob Banner components
 ```
 
 ---
@@ -104,12 +120,11 @@ This application and its source code are the intellectual property of **Moiz Bal
 
 ---
 
-## 👨‍💻 Development Guidelines for Future Contributors
+## 👨‍💻 Development Guidelines
 
-1.  **State Management**: Always use the `CalculatorProvider` for business logic. Do not put calculation math inside UI widgets.
-2.  **Theming**: Reference `AppTheme` for colors. Avoid hardcoding hex values in the UI layer.
-3.  **Responsiveness**: Use `MediaQuery` variables (e.g., `isTablet`) to adjust layouts for different screen factors.
-4.  **Ad Safety**: All new pages must wrap the banner area in a `SafeArea` with a bottom margin of at least `10.0` to avoid system navigation overlap.
+1.  **Ad Logic**: Never trigger ads manually in UI files. Use `AdManager.showInterstitialIfNeeded(provider)` to ensure the 3-calc threshold and ad-removal timers are respected.
+2.  **Debug Mode**: The `AdManager` uses the User's Test IDs automatically in debug builds (via `kDebugMode`). Do not manually swap Unit IDs in production code.
+3.  **Responsiveness**: The app uses a threshold of `600px` to distinguish between Mobile and Tablet layouts. Always test UI changes on both form factors.
 
 ---
 *Built with ❤️ by Moiz Baloch*

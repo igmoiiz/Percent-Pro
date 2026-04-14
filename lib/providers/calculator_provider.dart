@@ -3,9 +3,32 @@ import 'package:flutter/material.dart';
 class CalculatorProvider with ChangeNotifier {
   bool _isDarkMode = false;
   bool get isDarkMode => _isDarkMode;
+  
+  int _calcCount = 0;
+  DateTime? _adsRemovedUntil;
 
   void toggleTheme() {
     _isDarkMode = !_isDarkMode;
+    notifyListeners();
+  }
+
+  bool get areAdsRemoved => 
+      _adsRemovedUntil != null && DateTime.now().isBefore(_adsRemovedUntil!);
+
+  void removeAdsFor(int minutes) {
+    _adsRemovedUntil = DateTime.now().add(Duration(minutes: minutes));
+    notifyListeners();
+  }
+
+  int get calcCount => _calcCount;
+
+  void incrementCalcCount() {
+    _calcCount++;
+    notifyListeners();
+  }
+
+  void resetCalcCount() {
+    _calcCount = 0;
     notifyListeners();
   }
 
