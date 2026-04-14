@@ -6,18 +6,33 @@ class AdManager {
   static InterstitialAd? _interstitialAd;
   static RewardedAd? _rewardedAd;
 
-  static const String _interstitialAdUnitId =
+  // Actual Production IDs
+  static const String _prodInterstitialId =
       'ca-app-pub-7995233823810215/9706871767';
-  static const String _rewardedAdUnitId =
+  static const String _prodRewardedId =
       'ca-app-pub-7995233823810215/5306472656';
-  static const String _rewardedAdTestId =
+  static const String _prodBannerId = 'ca-app-pub-7995233823810215/6530044087';
+
+  // Google Test IDs (Universal)
+  static const String _testInterstitialId =
+      'ca-app-pub-3940256099942544/1033173712';
+  static const String _testRewardedId =
       'ca-app-pub-3940256099942544/5224354917';
+  static const String _testBannerId = 'ca-app-pub-3940256099942544/6300978111';
+
+  // Helper to get correct ID based on mode
+  static String get bannerAdUnitId =>
+      kDebugMode ? _testBannerId : _prodBannerId;
+  static String get interstitialAdUnitId =>
+      kDebugMode ? _testInterstitialId : _prodInterstitialId;
+  static String get rewardedAdUnitId =>
+      kDebugMode ? _testRewardedId : _prodRewardedId;
 
   // --- Interstitial Ads ---
 
   static void loadInterstitial() {
     InterstitialAd.load(
-      adUnitId: _interstitialAdUnitId,
+      adUnitId: interstitialAdUnitId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
@@ -35,7 +50,7 @@ class AdManager {
       _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (ad) {
           ad.dispose();
-          loadInterstitial(); // Preload next
+          loadInterstitial();
           onAdClosed();
         },
         onAdFailedToShowFullScreenContent: (ad, err) {
@@ -55,7 +70,7 @@ class AdManager {
 
   static void loadRewarded() {
     RewardedAd.load(
-      adUnitId: kDebugMode ? _rewardedAdTestId : _rewardedAdUnitId,
+      adUnitId: rewardedAdUnitId,
       request: const AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         onAdLoaded: (ad) {
@@ -77,7 +92,7 @@ class AdManager {
       _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (ad) {
           ad.dispose();
-          loadRewarded(); // Preload next
+          loadRewarded();
           onAdClosed();
         },
         onAdFailedToShowFullScreenContent: (ad, err) {

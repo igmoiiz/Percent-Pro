@@ -106,13 +106,14 @@ class SettingsPage extends StatelessWidget {
             ),
           ),
           
-          const Spacer(),
+          const SizedBox(height: 40),
           const Center(
             child: Text(
               'v1.0.0 | Built by Moiz Baloch',
               style: TextStyle(color: Colors.grey, fontSize: 12),
             ),
           ),
+          const SizedBox(height: 20),
         ],
       ),
     );
